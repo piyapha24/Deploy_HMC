@@ -178,7 +178,7 @@ $(document).ready(function () {
     });
 
     // Toggle nested table visibility on row click
-    $('#dataTable tbody').on('click', 'tr', function () {
+    $('#dataTable tbody').on('click', '.pointer-interactive', function () {
         var $row = $(this);
         var rowData = dIWData.row($row).data();
 
