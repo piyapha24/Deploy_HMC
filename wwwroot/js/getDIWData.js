@@ -1,4 +1,5 @@
 ﻿const connection = new signalR.HubConnectionBuilder().withUrl("/scrapListHub").build();
+var dates = "";
 $(document).ready(function () {
     // Initialize DataTable
     var dIWData = $('#dataTable').DataTable({
@@ -8,9 +9,11 @@ $(document).ready(function () {
         },
         ajax: {
             url: getDIWData,
-            type: "GET",
+            type: "POST",
             dataType: "json",
-            dataSrc: "data", // Adjust based on your JSON structure
+            data: function (e) {
+                e.date = $("#dates").val();
+            }, // Adjust based on your JSON structure
             error: function (jqXHR, textStatus, errorThrown) {
                 console.error('AJAX Error:', textStatus, errorThrown);
                 console.error('Response:', jqXHR.responseText);
@@ -133,7 +136,7 @@ $(document).ready(function () {
 
                     sums = isNaN(sums) ? 0 : sums;
 
-                    var percentage = sums.toFixed(3);  // Ensure percentage has three decimal places
+                    var percentage = sums.toFixed(2);  // Ensure percentage has three decimal places
 
                     if (sums <= 79)
                         return `
@@ -179,6 +182,18 @@ $(document).ready(function () {
             $(row).addClass('pointer-interactive');
         }
     });
+
+    $(".dataTables_filter").hide();
+    $('#searchs').keyup(function () {
+        dIWData.search($(this).val()).draw();
+    })
+
+    setInterval(() => {
+        if (dates != $("#dates").val()) {
+            dates = $("#dates").val()
+            dIWData.ajax.reload();
+        }
+    }, 100)
 
     // Toggle nested table visibility on row click
     $('#dataTable tbody').on('click', '.pointer-interactive', function () {

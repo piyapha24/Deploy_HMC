@@ -206,3 +206,24 @@
 .qtime-bg-rose {
     background-color: #FF3333;
 }
+
+.QtimeBox-complete {
+    background-color: #0E406A;
+    padding: 3px 10px;
+    border-radius: 50px;
+    color: white;
+}
+
+.QtimeBox-HMCbook {
+    background-color: #00ADEF;
+    padding: 3px 10px;
+    border-radius: 50px;
+    color: white;
+}
+
+.QtimeBox-CSbook {
+    background-color: #B8E5FA;
+    padding: 3px 10px;
+    border-radius: 50px;
+    color: white;
+}

@@ -1,4 +1,5 @@
 ﻿const connection = new signalR.HubConnectionBuilder().withUrl("/scrapListHub").build();
+var dates = "";
 $(document).ready(function () {
     // Initialize DataTable
     var masterDIWData = $('#dataTable').DataTable({
@@ -8,9 +9,12 @@ $(document).ready(function () {
         },
         ajax: {
             url: getMasterDIWData,
-            type: "GET",
+            type: "POST",
             dataType: "json",
-            dataSrc: "data", // Adjust based on your JSON structure
+            data: function (e) {
+                e.date = $("#dates").val();
+                e.type = $("#typeall").val();
+            }, // Adjust based on your JSON structure
             error: function (jqXHR, textStatus, errorThrown) {
                 console.error('AJAX Error:', textStatus, errorThrown);
                 console.error('Response:', jqXHR.responseText);
@@ -21,10 +25,21 @@ $(document).ready(function () {
                 data: null, // Use null for dynamic index
                 render: function (data, type, row, meta) {
                     return meta.row + 1; // Row index + 1
-                },
-                className: 'text-center'
+                }, className: 'text-center'
             },
-            { data: "type", className: 'text-center' },
+            {
+                data: "type", render: function (data) {
+                    console.log('data', data);
+                    if (data == '1')
+                        return `ชื่อกรมโรงาน`;
+                    else if (data == '2')
+                        return `ประเภทของเสีย`;
+                    else if (data == '3')
+                        return `ชื่อของเสีย`;
+                    else if (data == '4')
+                        return `ประเภทรถ`;
+                }, className: 'text-center'
+            },
             { data: "name", className: 'text-center' },
             { data: "createdBy", className: 'text-center' },
             { data: "updatedBy", className: 'text-center' },
@@ -36,8 +51,7 @@ $(document).ready(function () {
                     const month = String(date.getMonth() + 1).padStart(2, '0');
                     const year = date.getFullYear();
                     return `${day}-${month}-${year}`;
-                },
-                className: 'text-center'
+                }, className: 'text-center'
             },
             {
                 data: "id",
@@ -54,11 +68,25 @@ $(document).ready(function () {
                                     </div>
                                 </div>
                             `;
-                },
-                className: 'text-center w-40'
+                }, className: 'text-center w-40'
             }
         ]
     });
+
+    $(".dataTables_filter").hide();
+    $('#searchs').keyup(function () {
+        masterDIWData.search($(this).val()).draw();
+    })
+    $('#typeall').on("change", function () {
+        masterDIWData.ajax.reload();
+    })
+
+    setInterval(() => {
+        if (dates != $("#dates").val()) {
+            dates = $("#dates").val()
+            masterDIWData.ajax.reload();
+        }
+    }, 100)
 
     // Start SignalR connection
     connection.start().then(() => {
