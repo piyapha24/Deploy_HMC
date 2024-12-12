@@ -86,7 +86,18 @@ function initializeCalendar(response) {
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         events: [], // ตั้งค่าเริ่มต้น
+        viewDidMount: function (info) {
+            // กำหนดวันปัจจุบันสำหรับ title
+            const currentDate = new Date(); // วันที่ปัจจุบัน
+            const formattedDate = new Intl.DateTimeFormat('en-GB', {
+                day: '2-digit', // วันที่ (dd)
+                month: 'long', // เดือน (MMMM)
+                year: 'numeric' // ปี (yyyy)
+            }).format(currentDate);
 
+            // เปลี่ยนข้อความใน fc-toolbar-title
+            document.querySelector('.fc-toolbar-title').innerText = formattedDate;
+        },
         datesSet: function () {
             // ปรับปรุง Title หลังจากปฏิทินโหลด
             var toolbar = document.querySelector('.fc-toolbar-title');
@@ -153,7 +164,7 @@ function initializeCalendar(response) {
 
             if (session1Data) {
                 buttonMorning = `
-                    <button class="time-btn" onclick="getConfirmDeliveryDate('${session1Data.id}', '${formatDate}', ${response.customerId})" data-date="${info.date}"
+                    <button class="time-btn" onclick="getConfirmDeliveryDates('${session1Data.id}', '${formatDate}', ${response.customerId}, '${session1Data.session}')" data-date="${info.date}"
                         style="background-color: #00ADEF; border-radius: 5px; color: white; margin-left: 10px; padding: 15px;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sunrise block mx-auto">
                             <path d="M12 2v8"></path>
@@ -227,7 +238,7 @@ function initializeCalendar(response) {
 
             if (session2Data) {
                 buttonAfternoon = `
-                    <button class="time-btn mr-5" onclick="getConfirmDeliveryDate('${session2Data.id}', '${formatDate}', ${response.customerId})" data-date="${info.date}"
+                    <button class="time-btn mr-5" onclick="getConfirmDeliveryDates('${session2Data.id}', '${formatDate}', ${response.customerId}, '${session2Data.session}')" data-date="${info.date}"
                         style="background-color: #00ADEF; border-radius: 5px; color: white; margin-left: 10px; padding: 15px;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun block mx-auto">
                             <circle cx="12" cy="12" r="4"></circle>
@@ -424,6 +435,18 @@ document.addEventListener('DOMContentLoaded', function () {
             // Initialize FullCalendar after AJAX call
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                viewDidMount: function (info) {
+                    // กำหนดวันปัจจุบันสำหรับ title
+                    const currentDate = new Date(); // วันที่ปัจจุบัน
+                    const formattedDate = new Intl.DateTimeFormat('en-GB', {
+                        day: '2-digit', // วันที่ (dd)
+                        month: 'long', // เดือน (MMMM)
+                        year: 'numeric' // ปี (yyyy)
+                    }).format(currentDate);
+
+                    // เปลี่ยนข้อความใน fc-toolbar-title
+                    document.querySelector('.fc-toolbar-title').innerText = formattedDate;
+                },
                 datesSet: function () {
                     // ปรับปรุง Title หลังจากปฏิทินโหลด
                     var toolbar = document.querySelector('.fc-toolbar-title');
@@ -490,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     if (session1Data) {
                         buttonMorning = `
-                            <button class="time-btn" onclick="getConfirmDeliveryDate('${session1Data.id}', '${formatDate}')" data-date="${info.date}"
+                            <button class="time-btn" onclick="getConfirmDeliveryDate('${session1Data.id}', '${formatDate}', '${session1Data.session}')" data-date="${info.date}"
                                 style="background-color: #00ADEF; border-radius: 5px; color: white; margin-left: 10px; padding: 15px;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sunrise block mx-auto">
                                     <path d="M12 2v8"></path>
@@ -546,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     if (session2Data) {
                         buttonAfternoon = `
-                            <button class="time-btn mr-5" onclick="getConfirmDeliveryDate('${session2Data.id}', '${formatDate}')" data-date="${info.date}"
+                            <button class="time-btn mr-5" onclick="getConfirmDeliveryDate('${session2Data.id}', '${formatDate}', '${session2Data.session}')" data-date="${info.date}"
                                 style="background-color: #00ADEF; border-radius: 5px; color: white; margin-left: 10px; padding: 15px;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun block mx-auto">
                                     <circle cx="12" cy="12" r="4"></circle>
@@ -663,19 +686,30 @@ function changeDeliveryDate(dateTime, session) {
     $('#sessions').val(session);
 }
 
-function getConfirmDeliveryDate(id, formatDate, customerId) {
+function getConfirmDeliveryDate(id, formatDate, session) {
     $.ajax({
-        url: "/WEB/SellingRequest/QtimeTodays?datefor=" + formatDate,
+        url: "/WEB/SellingRequest/QtimeTodays?datefor=" + formatDate + "&session=" + session,
         type: 'POST',
         dataType: "json",
-        data: {
-            customerId: customerId
-        },
         success: function (response) {
             window.location.href = response.redirectToUrl;
         },
         error: function (xhr, status, error) {
-            console.log('Error:', error);  // แสดงข้อความข้อผิดพลาด
+            console.log('Error:', error);
+        }
+    });
+}
+
+function getConfirmDeliveryDates(id, formatDate, customerId, session) {
+    $.ajax({
+        url: "/WEB/SellingRequest/QtimeTodays?datefor=" + formatDate + "&customerId=" + customerId + "&session=" + session,
+        type: 'POST',
+        dataType: "json",
+        success: function (response) {
+            window.location.href = response.redirectToUrl;
+        },
+        error: function (xhr, status, error) {
+            console.log('Error:', error);
         }
     });
 }

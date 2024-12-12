@@ -1,11 +1,11 @@
 ﻿$(document).ready(function () {
-    var getCustomerWorkListTable = $('#dataTable').DataTable({
+    var getCustomerPaymentTable = $('#dataTable').DataTable({
         destroy: true,
         colReorder: {
             realtime: true
         },
         ajax: {
-            url: getCustomerWorkList,
+            url: getCustomerPayment,
             type: "POST",
             dataType: "json",
             data: function (e) {
@@ -55,44 +55,44 @@
             },
             { data: "nextStep", className: 'text-center' },
             {
-                data: "status", render: function (data) {
-                    if (data == "In progress") {
-                        return `
-                            <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 inProgressBox" href="javascript:;">${data}</a>
-                            </div>
-                        `;
-                    } else if (data == "Cancel") {
-                        return `
-                            <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 CancelBox" href="javascript:;">${data}</a>                                           
-                            </div>
-                        `;
-                    } else if (data == "Complete") {
-                        return `
-                            <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 CompleteBox" href="javascript:;">${data}</a>                                          
-                            </div>
-                        `;
+                data: "status", render: function (data, type, row) {
+                    var nextStep = row.nextStep;  // Assuming 'nextStep' is available in your data
+                    var statusHTML = '';
+
+                    if (nextStep === "Transfer/Acc/Envi") {
+                        statusHTML = `
+                <div class="flex justify-center items-center">
+                    <a href="/WEB/Customer/ReTransferSlip?sellingId=${row.id}" class="flex items-center mr-3 inProgressBox">${data}</a>
+                </div>
+            `;
+                    } else {
+                        statusHTML = `
+                <div class="flex justify-center items-center">
+                    <a href="/WEB/Customer/TransferSlipDone?sellingId=${row.id}" class="flex items-center mr-3 inProgressBox">${data}</a>
+                </div>
+            `;
                     }
-                }, className: 'text-center'
+
+                    return statusHTML;
+                },
+                className: 'text-center'
             },
         ],
     });
     $(".dataTables_filter").hide();
     $('#searchs').keyup(function () {
-        getCustomerWorkListTable.search($(this).val()).draw();
+        getCustomerPaymentTable.search($(this).val()).draw();
     })
     $('#statusall').on("change", function () {
-        getCustomerWorkListTable.ajax.reload();
+        getCustomerPaymentTable.ajax.reload();
     })
     $('#types').on("change", function () {
-        getCustomerWorkListTable.ajax.reload();
+        getCustomerPaymentTable.ajax.reload();
     })
     setInterval(() => {
         if (dates != $("#dates").val()) {
             dates = $("#dates").val()
-            getCustomerWorkListTable.ajax.reload();
+            getCustomerPaymentTable.ajax.reload();
         }
-    }, 1000)
+    }, 100)
 });

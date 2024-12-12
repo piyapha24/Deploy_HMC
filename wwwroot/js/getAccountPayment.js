@@ -1,18 +1,18 @@
 ﻿$(document).ready(function () {
-    var getCustomerWorkListTable = $('#dataTable').DataTable({
+    var getAccountPaymentTable = $('#dataTable').DataTable({
         destroy: true,
         colReorder: {
             realtime: true
         },
         ajax: {
-            url: getCustomerWorkList,
+            url: getAccountPayment,
             type: "POST",
             dataType: "json",
             data: function (e) {
                 e.date = $("#dates").val();
                 e.status = $("#statusall").val();
                 e.types = $("#types").val();
-            }, // Adjust based on your JSON structure
+            },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.error('AJAX Error:', textStatus, errorThrown);
                 console.error('Response:', jqXHR.responseText);
@@ -37,14 +37,14 @@
                     const year = date.getFullYear();
 
                     if (approvRequester == true && approvCustomer == true) {
-                        return `
+                        return ` 
                             <div class="flex items-center justify-center text-success"> 
                                 <i class="fa-regular fa-square-check mr-2"></i>
                                 ${day} ${month} ${year}
                             </div>
                         `;
                     } else {
-                        return `
+                        return ` 
                             <div class="flex items-center justify-center text-danger">
                                 <i class="fa-regular fa-rectangle-xmark mr-2"></i>
                                 ${day} ${month} ${year}
@@ -54,45 +54,65 @@
                 }, className: 'text-center'
             },
             { data: "nextStep", className: 'text-center' },
+            // New Payment Column
             {
-                data: "status", render: function (data) {
-                    if (data == "In progress") {
-                        return `
-                            <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 inProgressBox" href="javascript:;">${data}</a>
-                            </div>
-                        `;
-                    } else if (data == "Cancel") {
-                        return `
-                            <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 CancelBox" href="javascript:;">${data}</a>                                           
-                            </div>
-                        `;
-                    } else if (data == "Complete") {
-                        return `
-                            <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 CompleteBox" href="javascript:;">${data}</a>                                          
-                            </div>
-                        `;
+                data: "nextStep", render: function (data, type, row) {
+                    // Assuming paymentStatus holds the payment status of each record (e.g., 'Paid', 'Pending')
+                    if (data === "Envi") {
+                        return `<div class="flex justify-center items-center text-success">
+                            Done
+                        </div>`;
+                    } else if (data === "Acc/Envi") {
+                        return `<div class="flex justify-center items-center text-warning">
+                           Wait ACC
+                        </div>`;
+                    } else {
+                        return `<div class="flex justify-center items-center text-warning">
+                           Wait TT
+                        </div>`;
                     }
-                }, className: 'text-center'
+                },
+                className: 'text-center'
             },
+            {
+                data: "status", render: function (data, type, row) {
+                    // ใช้ค่าจาก data: "nextStep" ที่อยู่ใน row
+                    const nextStep = row.nextStep;
+
+                    // ตรวจสอบค่าของ nextStep
+                    if (nextStep === "Acc/Envi") {
+                        return `<div class="flex justify-center items-center">
+                <a href="/WEB/Account/PaymentInfo?idselling=${row.id}" class="flex items-center mr-3 inProgressBox">${data}</a>
+            </div>`;
+                    } else {
+                        return `<div class="flex justify-center items-center">
+                <a class="flex items-center mr-3 inProgressBox">${data}</a>
+            </div>`;
+                    }
+                },
+                className: 'text-center'
+            }   
         ],
     });
+
     $(".dataTables_filter").hide();
+
     $('#searchs').keyup(function () {
-        getCustomerWorkListTable.search($(this).val()).draw();
-    })
+        getAccountPaymentTable.search($(this).val()).draw();
+    });
+
     $('#statusall').on("change", function () {
-        getCustomerWorkListTable.ajax.reload();
-    })
+        getAccountPaymentTable.ajax.reload();
+    });
+
     $('#types').on("change", function () {
-        getCustomerWorkListTable.ajax.reload();
-    })
+        getAccountPaymentTable.ajax.reload();
+    });
+
     setInterval(() => {
         if (dates != $("#dates").val()) {
             dates = $("#dates").val()
-            getCustomerWorkListTable.ajax.reload();
+            getAccountPaymentTable.ajax.reload();
         }
-    }, 1000)
+    }, 100);
 });

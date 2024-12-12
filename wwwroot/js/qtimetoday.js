@@ -11,6 +11,7 @@
             dataType: "json",
             data: function (e) {
                 e.datefor = $('#Datefor').val();
+                e.session = $('#Session').val();
                 e.status = $("#statusall").val();
                 e.types = $("#types").val();
                 e.date = $("#dates").val();
@@ -48,7 +49,7 @@
                     } else {
                         return `
                         <div class="flex items-center justify-center text-danger">
-                            <i class="fa-regular fa-square-check mr-2"></i>
+                            <i class="fa-regular fa-rectangle-xmark mr-2"></i>
                             ${day} ${month} ${year}
                         </div>
                         `;
@@ -62,64 +63,94 @@
                     var docNo = row.docNo;
                     var deliveryDate = row.deliveryDate;
                     var session = row.session;
+                    var remark = row.remark;
                     var approvCustomer = row.approvCustomer;
                     var approvRequester = row.approvRequester;
+                    console.log(data);
                     if (data == true) {
                         return `
-                                    <div class="flex justify-center items-center">
-                                        <a class="flex items-center mr-3 justify-center QtimeBox-HMCbook" href="javascript:;">
-                                            <p class="text-center m-0">
-                                                เปลี่ยนวัน
-                                            </p>
-                                        </a>
-                                    </div>
+                            <div class="flex justify-center items-center">
+                                <a class="flex items-center mr-3 justify-center QtimeBox-HMCbook" href="javascript:;">
+                                    <p class="text-center m-0">
+                                        เปลี่ยนวัน
+                                    </p>
+                                </a>
+                            </div>
                         `;
                     } else if (approvRequester == true && approvCustomer == false) {
                         return `
-                                    <div class="flex justify-center items-center">
-                                        <button class="QtimeBox-HMCbook" onclick="changeDeliveryDate('${id}', '${docNo}', '${deliveryDate}', '${session}')" data-tw-toggle="modal" data-tw-target="#basic-modal-preview">
-                                            <p class="text-center m-0">
-                                                HMC จอง
-                                            </p>
-                                        </button>
-                                    </div>
+                            <div class="flex justify-center items-center">
+                                <button class="QtimeBox-HMCbook" onclick="changeDeliveryDate('${id}', '${docNo}', '${deliveryDate}', '${session}', '${remark}')" data-tw-toggle="modal" data-tw-target="#basic-modal-preview">
+                                    <p class="text-center m-0">
+                                        HMC จอง
+                                    </p>
+                                </button>
+                            </div>
                         `;
                     } else if (approvRequester == true && approvCustomer == true) {
                         return `
-                                    <div class="flex justify-center items-center">
-                                        <a class="flex items-center mr-3 justify-center QtimeBox-complete" href="javascript:;">
-                                            <p class="text-center m-0">
-                                                ยืนยัน
-                                            </p>
-                                        </a>
-                                    </div>
+                            <div class="flex justify-center items-center">
+                                <a class="flex items-center mr-3 justify-center QtimeBox-complete" href="javascript:;">
+                                    <p class="text-center m-0">
+                                        ยืนยัน
+                                    </p>
+                                </a>
+                            </div>
                         `;
                     }
                 }, className: 'text-center'
             },
             {
                 data: "status", render: function (data, type, row) {
-                    if (data == true) {
-                        return `
-                                    <div class="flex justify-center items-center">
-                                        <a class="flex items-center mr-3 justify-center QtimeBox-complete" href="javascript:;">
-                                            <p class="text-center m-0">
-                                                ข้อมูลครบ
-                                            </p>
-                                        </a>
-                                    </div>
+                    var approvCustomer = row.approvCustomer;
+                    var approvRequester = row.approvRequester;
+                    var id = row.id;
+                    if (approvCustomer == true && approvRequester == true) {
+                        if (data == true) {
+                            return `
+                            <div class="flex justify-center items-center">
+                                <a class="flex items-center mr-3 justify-center QtimeBox-complete" href="javascript:;">
+                                    <p class="text-center m-0">
+                                        ข้อมูลครบ
+                                    </p>
+                                </a>
+                            </div>
                         `;
+                        } else {
+                            return `
+                            <div class="flex justify-center items-center">
+                                <a class="flex items-center mr-3 justify-center QtimeBox-HMCbook" href="/WEB/Customer/DriverInfo/${id}">
+                                    <p class="text-center m-0">
+                                        กรอกข้อมูล
+                                    </p>
+                                </a>
+                            </div>
+                        `;
+                        }
                     } else {
-                        return `
-                                    <div class="flex justify-center items-center">
-                                        <a class="flex items-center mr-3 justify-center QtimeBox-HMCbook" href="javascript:;">
-                                            <p class="text-center m-0">
-                                                กรอกข้อมูล
-                                            </p>
-                                        </a>
-                                    </div>
+                        if (data == true) {
+                            return `
+                            <div class="flex justify-center items-center">
+                                <a class="flex items-center mr-3 justify-center QtimeBox-complete">
+                                    <p class="text-center m-0">
+                                        ข้อมูลครบ
+                                    </p>
+                                </a>
+                            </div>
                         `;
+                        } else {
+                            return `
+                            <div class="flex justify-center items-center">
+                                <a class="flex items-center mr-3 justify-center QtimeBox-HMCbook">
+                                    <p class="text-center m-0">
+                                        กรอกข้อมูล
+                                    </p>
+                                </a>
+                            </div>
+                        `;
+                        }
                     }
+                    
                 }, className: 'text-center'
             }
         ],
@@ -147,7 +178,7 @@
     }, 100)
 });
 
-function changeDeliveryDate(id, docNo, deliveryDate, session) {
+function changeDeliveryDate(id, docNo, deliveryDate, session, remark) {
     $('#frmQtimeToDay')[0].reset();
     var dateObj = new Date(deliveryDate);
     // Extract the year, month, and day
@@ -162,6 +193,7 @@ function changeDeliveryDate(id, docNo, deliveryDate, session) {
     $('.docNo').val(docNo);
     $('#delivery-date-fields').val(dateNow);
     $('#session-fields').val(session);
+    $('#remark').val(remark);
 
     $('#id').val(id);
     $('#deliveryDates').val(dateNow);
@@ -175,11 +207,13 @@ function submitConfirmDeliveryForm() {
     var deliveryDates = $('#deliveryDates').val(); // Retrieve the ID value from the form
     var sessions = $('#sessions').val(); // Retrieve the ID value from the form
     var remark = $('#remark').val(); // Retrieve the ID value from the form
+    var datefor = $('#Datefor').val(); // Retrieve the ID value from the form
     // Add ID to form data
     formData.push({ name: 'id', value: id });
     formData.push({ name: 'deliveryDates', value: deliveryDates });
     formData.push({ name: 'sessions', value: sessions });
     formData.push({ name: 'remark', value: remark });
+    formData.push({ name: 'datefor', value: datefor });
     // Send AJAX request
     $.ajax({
         url: '/WEB/Customer/ConfirmDelivery',

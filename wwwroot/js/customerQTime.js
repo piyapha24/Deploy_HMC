@@ -104,6 +104,18 @@ document.addEventListener('DOMContentLoaded', function () {
             // Initialize FullCalendar after AJAX call
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                viewDidMount: function (info) {
+                    // กำหนดวันปัจจุบันสำหรับ title
+                    const currentDate = new Date(); // วันที่ปัจจุบัน
+                    const formattedDate = new Intl.DateTimeFormat('en-GB', {
+                        day: '2-digit', // วันที่ (dd)
+                        month: 'long', // เดือน (MMMM)
+                        year: 'numeric' // ปี (yyyy)
+                    }).format(currentDate);
+
+                    // เปลี่ยนข้อความใน fc-toolbar-title
+                    document.querySelector('.fc-toolbar-title').innerText = formattedDate;
+                },
 
                 // Customize day cell content
                 dayCellContent: function (info) {
@@ -163,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Set button colors based on session availability
                     if (session1Data) {
                         buttonMorning = `
-                            <button class="time-btn" onclick="getConfirmDeliveryDate('${session1Data.id}', '${formatDate}')" data-time="afternoon" data-date="${info.date}"
+                            <button class="time-btn" onclick="getConfirmDeliveryDate('${session1Data.id}', '${formatDate}', '${session1Data.session}')" data-time="afternoon" data-date="${info.date}"
                                 style="background-color: #00ADEF; border-radius: 5px; color: white; padding: 15px; margin-left: 10px;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sunrise block mx-auto">
                                     <path d="M12 2v8"></path>
@@ -237,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     if (session2Data) {
                         buttonAfternoon = `
-                            <button class="time-btn mr-5" onclick="getConfirmDeliveryDate('${session2Data.id}', '${formatDate}')" data-time="afternoon" data-date="${info.date}"
+                            <button class="time-btn mr-5" onclick="getConfirmDeliveryDate('${session2Data.id}', '${formatDate}', '${session2Data.session}')" data-time="afternoon" data-date="${info.date}"
                                 style="background-color: #00ADEF; border-radius: 5px; color: white; padding: 15px; margin-left: 10px;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun block mx-auto">
                                     <circle cx="12" cy="12" r="4"></circle>
@@ -359,9 +371,9 @@ function goToDriverConfirm(id) {
     });
 }
 
-function getConfirmDeliveryDate(id, formatDate) {
+function getConfirmDeliveryDate(id, formatDate, session) {
     $.ajax({
-        url: "/WEB/Customer/QtimeTodays?datefor=" + formatDate,
+        url: "/WEB/Customer/QtimeTodays?datefor=" + formatDate + "&session=" + session,
         type: 'POST',
         dataType: "json",
         success: function (response) {
