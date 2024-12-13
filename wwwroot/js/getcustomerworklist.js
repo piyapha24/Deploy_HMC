@@ -55,23 +55,24 @@
             },
             { data: "nextStep", className: 'text-center' },
             {
-                data: "status", render: function (data) {
+                data: "status", render: function (data, type, row) {
+                    var id = row.id;
                     if (data == "In progress") {
                         return `
                             <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 inProgressBox" href="javascript:;">${data}</a>
+                                <a class="flex items-center mr-3 inProgressBox" href="/WEB/Customer/ShowDriverConfirm/${id}">${data}</a>
                             </div>
                         `;
                     } else if (data == "Cancel") {
                         return `
                             <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 CancelBox" href="javascript:;">${data}</a>                                           
+                                <a class="flex items-center mr-3 CancelBox">${data}</a>                                           
                             </div>
                         `;
                     } else if (data == "Complete") {
                         return `
                             <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 CompleteBox" href="javascript:;">${data}</a>                                          
+                                <a class="flex items-center mr-3 CompleteBox">${data}</a>                                          
                             </div>
                         `;
                     }

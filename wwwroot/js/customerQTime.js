@@ -63,6 +63,11 @@ document.addEventListener('DOMContentLoaded', function () {
         success: function (response) {
             var dateTime;
             var dateTimes;
+            var dateTimeNow = new Date();
+            var dayNow = dateTimeNow.getDate().toString().padStart(2, '0'); // วันที่
+            var monthNow = dateTimeNow.toLocaleString('en', { month: 'long' }); // ชื่อเดือน
+            var yearNow = dateTimeNow.getFullYear(); // ปี
+            var toolbarTitle = `${dayNow} ${monthNow} ${yearNow}`;
             // สมมติว่า response.data เป็นอาร์เรย์ของวันที่ที่มีข้อมูล
             // เราจะเก็บวันที่ที่มีข้อมูลในรูปแบบ string (yyyy-mm-dd)
             if (response.data && response.data.length > 0) {
@@ -116,7 +121,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     // เปลี่ยนข้อความใน fc-toolbar-title
                     document.querySelector('.fc-toolbar-title').innerText = formattedDate;
                 },
-
+                datesSet: function () {
+                    // ปรับปรุง Title หลังจากปฏิทินโหลด
+                    var toolbar = document.querySelector('.fc-toolbar-title');
+                    if (toolbar) {
+                        toolbar.textContent = toolbarTitle; // เปลี่ยนหัวเรื่องเป็นวันที่ที่กำหนด
+                    }
+                },
                 // Customize day cell content
                 dayCellContent: function (info) {
                     var dateObj = new Date(info.date);

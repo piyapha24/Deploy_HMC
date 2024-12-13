@@ -96,7 +96,7 @@ $(document).ready(function () {
                     } else if (approvRequester == true && approvCustomer == true) {
                         return `
                             <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 justify-center QtimeBox-complete" href="javascript:;">
+                                <a class="flex items-center mr-3 justify-center QtimeBox-complete">
                                     <p class="text-center m-0">
                                         ยืนยัน
                                     </p>
@@ -108,10 +108,11 @@ $(document).ready(function () {
             },
             {
                 data: "status", render: function (data, type, row) {
+                    var id = row.id;
                     if (data == true) {
                         return `
                             <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 justify-center QtimeBox-complete" href="javascript:;">
+                                <a class="flex items-center mr-3 justify-center QtimeBox-complete" href="/WEB/SellingRequest/DriverConfirm/${id}">
                                     <p class="text-center m-0">
                                         ข้อมูลครบ
                                     </p>
@@ -121,7 +122,7 @@ $(document).ready(function () {
                     } else {
                         return `
                             <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3 justify-center QtimeBox-HMCbook" href="javascript:;">
+                                <a class="flex items-center mr-3 justify-center QtimeBox-HMCbook">
                                     <p class="text-center m-0">
                                         กรอกข้อมูล
                                     </p>
